@@ -1,0 +1,49 @@
+
+// URL url = new URL ("https://prod-24.eastasia.logic.azure.com:443/workflows/de9661ccadd24b5199e27d94ee756508/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=rzQajGSYp0Ts9ffCen6MthC4GVC9-0DgB3WsaFTdX5k");
+        
+        // // Try to send to logic app, can wait
+        // try {
+        //     // Specify the URL you want to connect to
+        //     URL url = new URL("https://prod-24.eastasia.logic.azure.com:443/workflows/de9661ccadd24b5199e27d94ee756508/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=rzQajGSYp0Ts9ffCen6MthC4GVC9-0DgB3WsaFTdX5k");
+
+        //     // Open a connection to the URL
+        //     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+        //     // Set the request method and content type
+        //     connection.setRequestMethod("POST");
+        //     connection.setRequestProperty("Content-Type", "application/json");
+
+        //     // Enable input/output streams
+        //     connection.setDoOutput(true);
+
+        //     // Create JSON data
+        //     String jsonData = "{\"base64value\":\""+ requestFinsurge +"\"}";
+
+        //     // Write JSON data to the output stream
+        //     try (OutputStream os = connection.getOutputStream()) {
+        //         byte[] input = jsonData.getBytes("utf-8");
+        //         os.write(input, 0, input.length);
+        //     }
+
+        //     // Get the response code
+        //     int responseCode = connection.getResponseCode();
+        //     context.getLogger().info("Response Code: " + responseCode);
+
+        //     // Read the response from the server
+        //     BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        //     String line;
+        //     StringBuilder response = new StringBuilder();
+
+        //     while ((line = reader.readLine()) != null) {
+        //         response.append(line);
+        //     }
+        //     reader.close();
+
+        //     // Print the response
+        //     context.getLogger().info("Response: " + response.toString());
+
+        //     // Close the connection
+        //     connection.disconnect();
+        // } catch (Exception e) {
+        //     e.printStackTrace();
+        // }
