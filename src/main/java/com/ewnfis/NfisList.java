@@ -28,7 +28,7 @@ import java.util.Base64.Decoder;
 /**
  * Azure Functions with HTTP Trigger.
  */
-public class NfisUpload {
+public class NfisList {
 
    
     /**
@@ -38,51 +38,18 @@ public class NfisUpload {
      * 2. curl "{your host}/api/HttpExample?name=HTTP%20Query"
      * @throws Exception 
      */
-    @FunctionName("NfisUpload")
+    @FunctionName("NfisList")
     public HttpResponseMessage run(
             @HttpTrigger(name = "req", methods = { HttpMethod.GET,
                     HttpMethod.POST }, authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
             final ExecutionContext context) throws Exception {
         
-                context.getLogger().info("NFIS Upload invoked");
-        
-        // final String query = request.getQueryParameters().get("method");
-        // final String method = request.getBody().orElse(query);
-        // context.getLogger().info("Method test: "+ method);
+        context.getLogger().info("NFIS List invoked");
         
         
-        // byte array to be converted to CSV
-        final String requestFinsurge = request.getBody().get();
-        context.getLogger().info("Request: " + requestFinsurge);
-
-        byte[] requestInByte = Base64.getDecoder().decode(requestFinsurge);
-
-        // Encode the bytes in Base64
-        String requestInString = Base64.getEncoder().encodeToString(requestInByte);
-
-
-        
-        BAPCBConnector remote = BAPCBConnector.getInstance();
-        String fileName = "ewnfis" + new Date(); 
-
-
-        if(requestFinsurge != null) {
-            context.getLogger().info("Valid Base 64. Proceed to NFIS Upload.");
-            context.getLogger().info("String value: " + requestInString);
-            remote.upload(null, fileName, requestInByte, "INDIVIDUAL");
-            
-            return request.createResponseBuilder(HttpStatus.OK).body("Request received.").build();
-            
-            
-        } else {
-            return request.createResponseBuilder(HttpStatus.BAD_REQUEST).body("Empty request.").build();
-        }
-
-        
-
-
         
         
+        return request.createResponseBuilder(HttpStatus.OK).body("Request received.").build();
 
     }
 }

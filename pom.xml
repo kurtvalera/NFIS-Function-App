@@ -28,7 +28,6 @@
             <groupId>com.bapcb.remote</groupId>
             <artifactId>bapcb-nfisclient</artifactId>
             <version>5.0</version>
-         
         </dependency>
 
         <dependency>
