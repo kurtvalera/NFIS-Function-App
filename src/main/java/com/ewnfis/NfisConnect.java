@@ -42,7 +42,7 @@ public class NfisConnect {
        
         // Your code for connecting to the remote server
         String username = "ewb.api01";
-        String password = "Mary@1016";
+        String password = "Credit@01";
         Date start = new Date();
 
         boolean isConnected = remote.connect(username, password, "api7");
