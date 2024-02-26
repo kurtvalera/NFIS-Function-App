@@ -30,6 +30,16 @@ import java.util.Base64.Decoder;
  */
 public class NfisUpload {
 
+    private static boolean isValidBase64(String str) {
+        try {
+            // Attempt to decode the Base64 string
+            Base64.getDecoder().decode(str);
+            return true; // If decoding succeeds, it's a valid Base64 value
+        } catch (IllegalArgumentException e) {
+            return false; // If decoding fails, it's not a valid Base64 value
+        }
+    }
+
    
     /**
      * This function listens at endpoint "/api/HttpExample". Two ways to invoke it
@@ -44,45 +54,39 @@ public class NfisUpload {
                     HttpMethod.POST }, authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
             final ExecutionContext context) throws Exception {
         
-                context.getLogger().info("NFIS Upload invoked");
-        
-        // final String query = request.getQueryParameters().get("method");
-        // final String method = request.getBody().orElse(query);
-        // context.getLogger().info("Method test: "+ method);
-        
-        
-        // byte array to be converted to CSV
+        context.getLogger().info("NFIS Upload invoked");
         final String requestFinsurge = request.getBody().get();
         context.getLogger().info("Request: " + requestFinsurge);
-
-        byte[] requestInByte = Base64.getDecoder().decode(requestFinsurge);
-
-        // Encode the bytes in Base64
-        String requestInString = Base64.getEncoder().encodeToString(requestInByte);
-
-
+        if (isValidBase64(requestFinsurge)) {
+            byte[] requestInByte = Base64.getDecoder().decode(requestFinsurge);
         
-        BAPCBConnector remote = BAPCBConnector.getInstance();
-        String fileName = "ewnfis" + new Date(); 
+            String requestInString = Base64.getEncoder().encodeToString(requestInByte);
+            BAPCBConnector remote = BAPCBConnector.getInstance();
+            String fileName = "ewnfis" + new Date(); 
 
+            // Initialize connection
+            String username = "ewb.api01";
+            String password = "Credit@01";
+            context.getLogger().info("Connection invoked at: " + new Date());
+            boolean isConnected = remote.connect(username, password, "api7");
+            if(isConnected) {
+                context.getLogger().info("Connection successful.");
+                if(requestFinsurge != null) {
+                    context.getLogger().info("Valid Base 64. Proceed to NFIS Upload.");
+                    context.getLogger().info("String value: " + requestInString);
+                    remote.upload(null, fileName, requestInByte, "INDIVIDUAL");
 
-        if(requestFinsurge != null) {
-            context.getLogger().info("Valid Base 64. Proceed to NFIS Upload.");
-            context.getLogger().info("String value: " + requestInString);
-            remote.upload(null, fileName, requestInByte, "INDIVIDUAL");
-            
-            return request.createResponseBuilder(HttpStatus.OK).body("Request received.").build();
-            
-            
+                    // After file upload
+                    remote.disconnect();
+                    return request.createResponseBuilder(HttpStatus.OK).body("Request received.").build();  
+                } else {
+                    return request.createResponseBuilder(HttpStatus.BAD_REQUEST).body("Incorrect request.").build();
+                }
+            } else {
+                return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR).body("Unable to connect to NFIS Servers. Kinldy inform KOValera@eastwestbanker.com").build();
+            }
         } else {
-            return request.createResponseBuilder(HttpStatus.BAD_REQUEST).body("Empty request.").build();
+            return request.createResponseBuilder(HttpStatus.BAD_REQUEST).body("Incorrect request.").build();
         }
-
-        
-
-
-        
-        
-
     }
 }
