@@ -12,6 +12,8 @@ import com.microsoft.azure.functions.HttpStatus;
 import com.microsoft.azure.functions.annotation.AuthorizationLevel;
 import com.microsoft.azure.functions.annotation.FunctionName;
 import com.microsoft.azure.functions.annotation.HttpTrigger;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -53,7 +55,14 @@ public class NfisUpload {
             @HttpTrigger(name = "req", methods = { HttpMethod.GET,
                     HttpMethod.POST }, authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
             final ExecutionContext context) throws Exception {
-        
+        LocalDateTime currentDateTime = LocalDateTime.now();
+
+        // Define the desired date and time format
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+
+        // Format the current date and time as a string
+        String timestamp = currentDateTime.format(formatter);
+
         context.getLogger().info("NFIS Upload invoked");
         final String requestFinsurge = request.getBody().get();
         context.getLogger().info("Request: " + requestFinsurge);
@@ -62,31 +71,19 @@ public class NfisUpload {
         
             String requestInString = Base64.getEncoder().encodeToString(requestInByte);
             BAPCBConnector remote = BAPCBConnector.getInstance();
-            String fileName = "ewnfis" + new Date(); 
+            String fileName = "ewapinfis_" + timestamp; 
 
-            // Initialize connection
-            String username = "ewb.api01";
-            String password = "Credit@01";
-            context.getLogger().info("Connection invoked at: " + new Date());
-            boolean isConnected = remote.connect(username, password, "api7");
-            if(isConnected) {
-                context.getLogger().info("Connection successful.");
+            
                 if(requestFinsurge != null) {
-                    context.getLogger().info("Valid Base 64. Proceed to NFIS Upload.");
-                    context.getLogger().info("String value: " + requestInString);
+                    context.getLogger().info("Valid Base 64 request, and request is not null. Proceed to NFIS Upload.");
+                    context.getLogger().info("File name: " + fileName);
                     remote.upload(null, fileName, requestInByte, "INDIVIDUAL");
-
-                    // After file upload
-                    remote.disconnect();
-                    return request.createResponseBuilder(HttpStatus.OK).body("Request received.").build();  
+                    return request.createResponseBuilder(HttpStatus.OK).body("Request received. " + fileName + " has now been uploaded to BAP Servers.").build();  
                 } else {
-                    return request.createResponseBuilder(HttpStatus.BAD_REQUEST).body("Incorrect request.").build();
+                    return request.createResponseBuilder(HttpStatus.BAD_REQUEST).body("Incorrect request. Please send a correct Base64 value.").build();
                 }
             } else {
-                return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR).body("Unable to connect to NFIS Servers. Kinldy inform KOValera@eastwestbanker.com").build();
+                return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR).body("Unable to connect to NFIS Servers. Kindly inform KOValera@eastwestbanker.com of the timestamp when the error occurred.").build();
             }
-        } else {
-            return request.createResponseBuilder(HttpStatus.BAD_REQUEST).body("Incorrect request.").build();
-        }
+        } 
     }
-}

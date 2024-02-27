@@ -22,6 +22,16 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Optional;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.StringReader;
+
+
 import java.util.Base64;
 import java.util.Base64.Decoder;
 
@@ -44,12 +54,41 @@ public class NfisList {
                     HttpMethod.POST }, authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
             final ExecutionContext context) throws Exception {
         
-        context.getLogger().info("NFIS List invoked");
+                context.getLogger().info("NFIS List invoked");
+
+                BAPCBConnector remote = BAPCBConnector.getInstance();
+                String referenceId = remote.generateReferenceID();
+            
+                // "LIST Method return: " + remote.list(referenceId, "NEW") + "ReferenceID : " + referenceId
+            
+                String xmlRemoteList = remote.list(referenceId, "REPORT");
+                Thread.sleep(60000); 
+            
+                byte[] downloadResult = null;
+                boolean loopExecuted = false;
+                context.getLogger().info(xmlRemoteList);
+            
+                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder builder = factory.newDocumentBuilder();
+                Document document = builder.parse(new InputSource(new StringReader(xmlRemoteList)));
+         
+            
+                NodeList fileList = document.getElementsByTagName("FILE");
+                for (int i = 0; i < fileList.getLength(); i++) {
+                    Element fileElement = (Element) fileList.item(i);
+                    String fileName = fileElement.getAttribute("NAME");
+                    context.getLogger().info("File name: " + fileName);
+                    downloadResult = remote.download(null, fileName, "REPORT", "CSV");
+                    // Send json to finsurge
+                    loopExecuted = true;
+                }
+                if (loopExecuted) {
+                    return request.createResponseBuilder(HttpStatus.OK).body("Download: " + downloadResult).build();
+                } else {
+                    return request.createResponseBuilder(HttpStatus.NO_CONTENT).body("No files found.").build();
+                }
         
-        
-        
-        
-        return request.createResponseBuilder(HttpStatus.OK).body("Request received.").build();
+       
 
     }
 }
