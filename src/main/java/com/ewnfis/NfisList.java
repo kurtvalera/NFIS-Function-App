@@ -78,9 +78,17 @@ public class NfisList {
                     Element fileElement = (Element) fileList.item(i);
                     String fileName = fileElement.getAttribute("NAME");
                     context.getLogger().info("File name: " + fileName);
-                    downloadResult = remote.download(null, fileName, "REPORT", "CSV");
+                    if(!fileName.endsWith(".izp")) {
+                        downloadResult = remote.download(null, fileName, "REPORT", "CSV");
+                        String stringDownloadResult = new String(downloadResult);
+                        context.getLogger().info(stringDownloadResult);
+                        remote.delete(null, fileName, "REPORT");
+                    } else if (fileName.endsWith(".izp")) {
+                        remote.delete(null, fileName, "REPORT");
+                    }
                     // Send json to finsurge
                     loopExecuted = true;
+                    context.getLogger().info("Loop executed? " + loopExecuted);
                 }
                 if (loopExecuted) {
                     return request.createResponseBuilder(HttpStatus.OK).body("Download: " + downloadResult).build();

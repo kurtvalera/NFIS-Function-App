@@ -71,7 +71,7 @@ public class NfisUpload {
         
             String requestInString = Base64.getEncoder().encodeToString(requestInByte);
             BAPCBConnector remote = BAPCBConnector.getInstance();
-            String fileName = "ewapinfis_" + timestamp; 
+            String fileName = "ewapinfis_" + timestamp + ".csv"; 
 
             
                 if(requestFinsurge != null) {
