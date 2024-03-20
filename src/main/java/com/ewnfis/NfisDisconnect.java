@@ -27,8 +27,7 @@ public class NfisDisconnect {
      */
     @FunctionName("NfisDisconnect")
     public HttpResponseMessage run(
-            @HttpTrigger(name = "req", methods = { HttpMethod.GET,
-                    HttpMethod.POST }, authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
+            @HttpTrigger(name = "req", methods = {HttpMethod.POST }, authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
             final ExecutionContext context) throws Exception {
         
         BAPCBConnector remote = BAPCBConnector.getInstance();

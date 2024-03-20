@@ -10,7 +10,9 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel;
 import com.microsoft.azure.functions.annotation.FunctionName;
 import com.microsoft.azure.functions.annotation.HttpTrigger;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.Optional;
@@ -18,16 +20,23 @@ import java.util.Optional;
 public class NfisUpload {
 
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+    
 
     /**
      * This function listens at endpoint "/api/NfisUpload".
      */
     @FunctionName("NfisUpload")
     public HttpResponseMessage run(
-            @HttpTrigger(name = "req", methods = { HttpMethod.GET,
-                    HttpMethod.POST }, authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
+            @HttpTrigger(name = "req", methods = {HttpMethod.POST }, authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
             final ExecutionContext context) {
         LocalDateTime currentDateTime = LocalDateTime.now();
+
+        Instant currentTime = Instant.now();
+
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")
+                                                    .withZone(ZoneOffset.UTC);
+        String timeUtc = formatter.format(currentTime);
         String timestamp = currentDateTime.format(formatter);
 
         context.getLogger().info("Processing request for NFIS Upload.");
@@ -51,13 +60,16 @@ public class NfisUpload {
         try {
             context.getLogger().info("Proceeding to NFIS Upload. File name: " + fileName);
             remote.upload(null, fileName, requestInByte, "INDIVIDUAL");
+
             return request.createResponseBuilder(HttpStatus.OK)
                     .body("Request received. " + fileName + " has now been uploaded to BAP Servers.")
                     .build();
         } catch (Exception e) {
             context.getLogger().severe("Failed to upload file: " + e.getMessage());
+
+            
             return request.createResponseBuilder(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to upload file to BAP Servers.")
+                    .body("Unable to connect to NFIS Servers. Kindly inform KOValera@eastwestbanker.com of the timestamp when the error occurred. Timestamp: " + timeUtc)
                     .build();
         }
     }
