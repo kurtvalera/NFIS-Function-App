@@ -34,10 +34,10 @@ public class NfisUpload {
         Instant currentTime = Instant.now();
 
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")
+        DateTimeFormatter formatterLog = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")
                                                     .withZone(ZoneOffset.UTC);
         String timeUtc = formatter.format(currentTime);
-        String timestamp = currentDateTime.format(formatter);
+        String timestamp = currentDateTime.format(formatterLog);
 
         context.getLogger().info("Processing request for NFIS Upload.");
 
