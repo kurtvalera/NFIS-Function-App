@@ -34,9 +34,11 @@ public class NfisDelete {
 
         try {
             String deleteFile = new String(remote.delete(null, fileName, "REPORT"));
+            context.getLogger().info("Delete file XML: " + deleteFile);
             String errorCode = extractErrorCode(deleteFile);
+            context.getLogger().info("Error code: " + errorCode);
 
-            if(errorCode == "0") {
+            if(errorCode.equals("0")) {
                 return request.createResponseBuilder(HttpStatus.OK).body("Successful deletion.").build();
             } else {
                 return request.createResponseBuilder(HttpStatus.BAD_REQUEST).body("Invalid request.").build();

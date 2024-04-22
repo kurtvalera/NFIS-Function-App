@@ -46,27 +46,33 @@ public class NfisList {
         NodeList fileList = document.getElementsByTagName("FILE");
 
 
-// Assuming fileList is NodeList
+
 JSONArray jsonArray = new JSONArray();
 for (int i = 0; i < fileList.getLength(); i++) {
     Element fileElement = (Element) fileList.item(i);
     String fileName = fileElement.getAttribute("NAME");
     String transCode = fileElement.getAttribute("TRANSCODE");
+    String fileNameSubstr = fileName.substring(0,6);
+    context.getLogger().info("Rejected first letters: " + fileNameSubstr);
+    boolean isRejected = (fileNameSubstr.equals("REJECT")) ? true : false;
+    context.getLogger().info("Is rejected?: " + isRejected);
     if (!fileName.endsWith(".izp")) {
-        downloadResult = remote.download(null, fileName, "REPORT", "CSV");
-        String csvContent = new String(downloadResult);
+
+        // && !isRejected
+        // downloadResult = remote.download(null, fileName, "REPORT", "CSV");
+        // String csvContent = new String(downloadResult);
         
         // Create JSON object for each file
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("fileName", fileName);
-        jsonObject.put("csvContent", csvContent);
+        // jsonObject.put("csvContent", csvContent);
         jsonObject.put("transCode", transCode);
         // Add JSON object to array
         jsonArray.put(jsonObject);
         
-        context.getLogger().info("File Name: " + fileName + System.lineSeparator() + "TransCode: " + transCode + System.lineSeparator() + "CSV Content" + csvContent);
+        context.getLogger().info("File Name: " + fileName + System.lineSeparator() + "TransCode: " + transCode);
         // remote.delete(null, fileName, "REPORT");
-    } else {
+    } else { 
         remote.delete(null, fileName, "REPORT");
     }
         loopExecuted = true;
