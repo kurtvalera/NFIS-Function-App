@@ -14,7 +14,7 @@ import java.util.Optional;
 public class NfisConnect {
 
     private static final String USERNAME = "ewb.api01";
-    private static final String PASSWORD = "Credit@01";
+    private static final String PASSWORD = "Credit@111";
     private static final int CONNECTION_TIMEOUT = 28800000;
     private static final int READ_TIMEOUT = 28800000;
 
