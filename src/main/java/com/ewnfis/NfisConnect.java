@@ -11,6 +11,8 @@ import com.microsoft.azure.functions.annotation.FunctionName;
 import com.microsoft.azure.functions.annotation.HttpTrigger;
 import java.util.Optional;
 
+import org.json.JSONObject;
+
 public class NfisConnect {
 
     private static final String USERNAME = "ewb.api01";
@@ -23,6 +25,28 @@ public class NfisConnect {
             @HttpTrigger(name = "req", methods = {HttpMethod.POST}, authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
             final ExecutionContext context) {
         context.getLogger().info("Processing request for NFIS connect.");
+
+        String requestBody = request.getBody().orElse("");
+
+        // Check if the request body is empty and return a specific message if true
+        if (requestBody.isEmpty()) {
+            return request.createResponseBuilder(HttpStatus.BAD_REQUEST)
+                    .body("You cannot invoke Connect method. Please send an email to KOValera@eastwestbanker.com, VBMamuyac@eastwestbanker.com, BTCerdenajr@eastwestbanker.com, or RBLuzada@eastwestbanker.com. Thank you!")
+                    .build();
+        }
+
+        context.getLogger().info("Request Body: " + requestBody);
+
+        String requestor = new JSONObject(requestBody).getString("requestor");
+
+        // Check if the requestor is "LOS" and return the specific message if true
+        if ("LOS".equalsIgnoreCase(requestor)) {
+            return request.createResponseBuilder(HttpStatus.BAD_REQUEST)
+                    .body("You cannot invoke Connect method. Please send an email to KOValera@eastwestbanker.com, VBMamuyac@eastwestbanker.com, BTCerdenajr@eastwestbanker.com, or RBLuzada@eastwestbanker.com. Thank you!")
+                    .build();
+        }
+
+        context.getLogger().info("Requestor: " + requestor);
 
         try {
             BAPCBConnector remote = BAPCBConnector.getInstance(CONNECTION_TIMEOUT, READ_TIMEOUT);
